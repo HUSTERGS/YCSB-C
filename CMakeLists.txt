@@ -3,9 +3,9 @@ project(ycsb)
 
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
-pkg_check_module(TBB REQUIRED tbb)
+pkg_check_modules(TBB REQUIRED tbb)
 
-add_subdirectory(redis redis)
+add_subdirectory(redis)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -47,4 +47,5 @@ target_sources(ycsb PUBLIC
         "ycsbc.cc"
         )
 
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} redis)
+target_include_directories(ycsb PUBLIC .)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} hiredis)

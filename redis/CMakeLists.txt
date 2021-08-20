@@ -16,8 +16,8 @@ target_sources(hiredis PUBLIC
         "hiredis/read.h"
         "hiredis/sds.c"
         "hiredis/sds.h"
-        "hiredis/test.c"
+        #"hiredis/test.c"
         "hiredis/win32.h"
         "redis_client.h"
         )
-target_include_directories(hiredis hiredis/adapters .)
+target_include_directories(hiredis PUBLIC hiredis/adapters .)
