@@ -4,6 +4,7 @@ project(ycsb)
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(TBB REQUIRED tbb)
+pkg_check_modules(LIBPMEM REQUIRED libpmem)
 
 add_subdirectory(redis)
 
@@ -43,9 +44,10 @@ target_sources(ycsb PUBLIC
         "lib/string_hashtable.h"
         "lib/tbb_scan_hashtable.h"
         "lib/tbb_rand_hashtable.h"
+        "lib/pm_log_store.h"
 
         "ycsbc.cc"
         )
 
 target_include_directories(ycsb PUBLIC .)
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} hiredis)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} ${LIBPMEM_LIBRARIES} hiredis)
