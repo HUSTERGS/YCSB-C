@@ -2,6 +2,9 @@
 // Created by zzyyyww on 2021/8/20.
 //
 
+// a simple log-structured hash db
+// the hash map used in this db is STL unordered_map
+
 #ifndef YCSB_LOG_DB_H
 #define YCSB_LOG_DB_H
 
