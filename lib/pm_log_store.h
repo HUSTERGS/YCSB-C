@@ -29,12 +29,14 @@ namespace pm {
         PmAddr Alloc(size_t size){
             return tail_.fetch_add(size, std::memory_order_relaxed);
         }
-        void Append(PmAddr offset, cosnt std::string& payload){
+        void Append(PmAddr offset, const std::string& payload){
             pmem_memcpy_persist(raw_ + offset, payload.c_str(), payload.size());
         }
 
+        char* raw() const {return raw_;}
+
     private:
-        cosnt char* raw_;
+        char* raw_;
         std::atomic<uint64_t> tail_;
         size_t mapped_len_;
         int is_pmem_;

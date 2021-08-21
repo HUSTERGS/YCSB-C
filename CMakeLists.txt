@@ -36,6 +36,8 @@ target_sources(ycsb PUBLIC
         "db/redis_db.h"
         "db/tbb_rand_db.h"
         "db/tbb_scan_db.h"
+        "db/log_db.cc"
+        "db/log_db.h"
 
         "lib/lock_stl_hashtable.h"
         "lib/mem_alloc.h"

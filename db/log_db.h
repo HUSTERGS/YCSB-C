@@ -5,6 +5,8 @@
 #ifndef YCSB_LOG_DB_H
 #define YCSB_LOG_DB_H
 
+#include <unordered_map>
+
 #include "core/db.h"
 #include "lib/pm_log_store.h"
 
@@ -29,6 +31,7 @@ namespace ycsbc {
 
     protected:
         LogStore* log_;
+        std::unordered_map<std::string, PmAddr> map_;
     };
 }
 
