@@ -8,12 +8,16 @@
 namespace ycsbc {
     const std::string PM_PATH("./pmem");
     const uint64_t PM_SIZE(1024UL * 1024UL * 1024UL);
-    LogDB::LogDB() {
+    LogDB::LogDB() {}
+
+    LogDB::~LogDB() {}
+
+    void LogDB::Init() {
         log_ = new LogStore(PM_PATH, PM_SIZE);
         map_.clear();
     }
 
-    LogDB::~LogDB() {
+    void LogDB::Close() {
         delete log_;
     }
 

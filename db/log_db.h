@@ -20,6 +20,10 @@ namespace ycsbc {
         LogDB();
         ~LogDB();
 
+        void Init();
+
+        void Close();
+
         int Read(const std::string &table, const std::string &key,
                  const std::vector<std::string> *fields,
                  std::vector<KVPair> &result);

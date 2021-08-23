@@ -8,6 +8,8 @@ pkg_check_modules(LIBPMEM REQUIRED libpmem)
 
 add_subdirectory(redis)
 
+OPTION(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
+
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
         "core/client.h"
@@ -38,6 +40,8 @@ target_sources(ycsb PUBLIC
         "db/tbb_scan_db.h"
         "db/log_db.cc"
         "db/log_db.h"
+        "db/pmem_rocksdb_db.cc"
+        "db/pmem_rocksdb_db.h"
 
         "lib/lock_stl_hashtable.h"
         "lib/mem_alloc.h"
@@ -52,4 +56,13 @@ target_sources(ycsb PUBLIC
         )
 
 target_include_directories(ycsb PUBLIC .)
+
+if (WITH_PMEM_ROCKSDB)
+    add_definitions(-DWITH_DCPMM)
+    add_definitions(-DON_DCPMM)
+    add_subdirectory(lib/pmem-rocksdb)
+    target_include_directories(ycsb PUBLIC lib/pmem-rocksdb/include)
+    target_link_libraries(ycsb rocksdb)
+endif ()
+
 target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} ${LIBPMEM_LIBRARIES} hiredis)
