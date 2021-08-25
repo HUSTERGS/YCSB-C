@@ -16,6 +16,7 @@
 #include "db/tbb_scan_db.h"
 #include "db/log_db.h"
 #include "db/pmem_rocksdb_db.h"
+#include "db/cceh_db.h"
 
 using namespace std;
 using ycsbc::DB;
@@ -38,6 +39,8 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
       return new LogDB;
   } else if (props["dbname"] == "pmem-rocksdb"){
       return new ycsb_pmem_rocksdb::PmemRocksDB;
+  } else if (props["dbname"] == "cceh"){
+      return new cceh_db::CCEHDB;
   }
   else return NULL;
 }

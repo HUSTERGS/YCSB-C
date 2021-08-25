@@ -14,8 +14,8 @@ using namespace ycsbc;
 
 namespace ycsb_pmem_rocksdb{
 
-    const std::string PMEM_PATH("/pmem0/zyw/pmem");
-    const std::string DB_NAME("/pmem0/zyw/rocksdb");
+    const std::string PMEM_PATH("/mnt/pmem");
+    const std::string DB_NAME("/mnt/rocksdb");
     const uint64_t PMEM_SIZE = 1024UL * 1024UL * 1024UL;
 
     void PmemRocksDB::Init() {

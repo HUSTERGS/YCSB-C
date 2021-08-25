@@ -5,10 +5,12 @@ include(FindThreads)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(TBB REQUIRED tbb)
 pkg_check_modules(LIBPMEM REQUIRED libpmem)
+pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 
 add_subdirectory(redis)
 
-OPTION(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
+option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
+option(WITH_CCEH "support for CCEH hash table" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -42,6 +44,8 @@ target_sources(ycsb PUBLIC
         "db/log_db.h"
         "db/pmem_rocksdb_db.cc"
         "db/pmem_rocksdb_db.h"
+        "db/cceh_db.cc"
+        "db/cceh_db.h"
 
         "lib/lock_stl_hashtable.h"
         "lib/mem_alloc.h"
@@ -63,6 +67,12 @@ if (WITH_PMEM_ROCKSDB)
     add_subdirectory(lib/pmem-rocksdb)
     target_include_directories(ycsb PUBLIC lib/pmem-rocksdb/include)
     target_link_libraries(ycsb rocksdb)
+endif ()
+
+if (WITH_CCEH)
+    add_subdirectory(lib/cceh)
+    target_include_directories(ycsb PUBLIC lib/cceh/CCEH-PMDK/src ${LIBPMEMOBJ_INCLUDE_DIRS})
+    target_link_libraries(ycsb cceh ${LIBPMEMOBJ_LIBRARIES})
 endif ()
 
 target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} ${LIBPMEM_LIBRARIES} hiredis)

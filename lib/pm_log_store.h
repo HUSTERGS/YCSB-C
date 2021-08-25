@@ -11,7 +11,25 @@
 #include <atomic>
 
 namespace pm {
+
+
     using PmAddr = uint64_t;
+
+    inline std::string GenerateRawEntry(std::string entry){
+        uint64_t size = entry.size();
+        std::string raw_size((char*)(&size), sizeof(uint64_t));
+        //return std::string("user").append(zeros, '0').append(key_num_str);
+        return raw_size + entry;
+    }
+
+    inline uint64_t DecodeSize(const char* raw) {
+        if (raw == nullptr) {
+            return 0;
+        }
+        uint64_t* size = (uint64_t*)raw;
+        return *size;
+    }
+
     class LogStore {
     public:
         explicit LogStore(const std::string& pm_path, uint64_t pm_size){

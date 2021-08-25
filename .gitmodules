@@ -2,3 +2,11 @@
 	path = lib/pmem-rocksdb
 	url = https://github.com/GlitterIsMe/pmem-rocksdb.git
 	branch = developing
+[submodule "lib/cceh"]
+	path = lib/cceh
+	url = https://github.com/GlitterIsMe/CCEH.git
+	branch = var_length_key
+[submodule "lib/utree"]
+	path = lib/utree
+	url = https://github.com/GlitterIsMe/nvm-datastructure.git
+	branch = variable_length
