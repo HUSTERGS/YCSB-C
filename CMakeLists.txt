@@ -9,7 +9,7 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 
 add_subdirectory(redis)
 
-option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
+option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
 option(WITH_CCEH "support for CCEH hash table" ON)
 
 add_executable(ycsb "")
@@ -42,8 +42,7 @@ target_sources(ycsb PUBLIC
         "db/tbb_scan_db.h"
         #"db/log_db.cc"
         #"db/log_db.h"
-        "db/pmem_rocksdb_db.cc"
-        "db/pmem_rocksdb_db.h"
+
         "db/cceh_db.cc"
         "db/cceh_db.h"
 
@@ -59,20 +58,31 @@ target_sources(ycsb PUBLIC
         "ycsbc.cc"
         )
 
-target_include_directories(ycsb PUBLIC .)
+
 
 if (WITH_PMEM_ROCKSDB)
     add_definitions(-DWITH_DCPMM)
     add_definitions(-DON_DCPMM)
+    add_definitions(-DUSING_PMEM_ROCKSDB)
     add_subdirectory(lib/pmem-rocksdb)
     target_include_directories(ycsb PUBLIC lib/pmem-rocksdb/include)
+    target_sources(ycsb PUBLIC
+            "db/pmem_rocksdb_db.cc"
+            "db/pmem_rocksdb_db.h"
+            )
     target_link_libraries(ycsb rocksdb)
 endif ()
 
 if (WITH_CCEH)
+    add_definitions(-DUSING_CCEH)
     add_subdirectory(lib/cceh)
     target_include_directories(ycsb PUBLIC lib/cceh/CCEH-PMDK/src ${LIBPMEMOBJ_INCLUDE_DIRS})
+    target_sources(ycsb PUBLIC
+            "db/cceh_db.cc"
+            "db/cceh_db.h"
+            )
     target_link_libraries(ycsb cceh ${LIBPMEMOBJ_LIBRARIES})
 endif ()
 
+target_include_directories(ycsb PUBLIC .)
 target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} ${LIBPMEM_LIBRARIES} hiredis)
