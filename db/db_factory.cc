@@ -14,7 +14,7 @@
 #include "db/redis_db.h"
 #include "db/tbb_rand_db.h"
 #include "db/tbb_scan_db.h"
-#include "db/log_db.h"
+//#include "db/log_db.h.back"
 #include "db/pmem_rocksdb_db.h"
 #include "db/cceh_db.h"
 
@@ -35,8 +35,8 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
     return new TbbRandDB;
   } else if (props["dbname"] == "tbb_scan") {
     return new TbbScanDB;
-  } else if (props["dbname"] == "logdb"){
-      return new LogDB;
+  //} else if (props["dbname"] == "logdb"){
+  //    return new LogDB;
   } else if (props["dbname"] == "pmem-rocksdb"){
       return new ycsb_pmem_rocksdb::PmemRocksDB;
   } else if (props["dbname"] == "cceh"){

@@ -4,8 +4,17 @@
 
 #include <unistd.h>
 #include "cceh_db.h"
+#include "global_log.h"
 
 namespace cceh_db {
+
+    inline uint64_t DecodeSize(const char* raw) {
+        if (raw == nullptr) {
+            return 0;
+        }
+        uint64_t* size = (uint64_t*)(global_log_->raw() + (uint64_t)raw);
+        return *size;
+    }
 
     //const std::string CCEH_PATH("/pmem0/zyw/cceh_pool");
     const std::string CCEH_PATH("cceh_pool");
@@ -37,8 +46,8 @@ namespace cceh_db {
             }
             exists = true;
         }
-
-        log_ = new pm::LogStore(LOG_PATH, LOG_SIZE);
+        global_log_ = new pm::LogStore(LOG_PATH, LOG_SIZE);
+        log_ = global_log_;
     }
 
     void CCEHDB::Close() {
@@ -57,8 +66,8 @@ namespace cceh_db {
         pm::PmAddr addr = log_->Alloc(whole_key.size() + whole_value.size());
         log_->Append(addr, whole_key + whole_value);
         //TODO: the raw ptr should not be used here, use the offset instead!
-        uint64_t raw_addr = (uint64_t)(log_->raw() + addr);
-        D_RW(HashTable_)->Insert(pop_, raw_addr, (log_->raw() + addr + whole_key.size()));
+        //uint64_t raw_addr = (uint64_t)(log_->raw() + addr);
+        D_RW(HashTable_)->Insert(pop_, addr, (char*)(addr + whole_key.size()));
         return DB::kOK;
     }
 
@@ -70,9 +79,9 @@ namespace cceh_db {
         memcpy(lookup, whole_key.c_str(), whole_key.size());
         Key_t lookup_key = (Key_t)(lookup);
         auto ret = D_RW(HashTable_)->Get(lookup_key);
-        uint64_t size = pm::DecodeSize(ret);
+        uint64_t size = DecodeSize(ret);
         char* res = new char[size];
-        memcpy(res, ret, size);
+        memcpy(res, global_log_->raw() + (uint64_t)ret, size);
         delete[] lookup;
         delete[] res;
         return DB::kOK;

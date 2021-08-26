@@ -8,7 +8,7 @@
 #include <libpmemobj.h>
 
 #include "core/db.h"
-#include "lib/pm_log_store.h"
+//#include "lib/pm_log_store.h"
 #include "CCEH.h"
 
 namespace cceh_db {

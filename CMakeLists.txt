@@ -40,8 +40,8 @@ target_sources(ycsb PUBLIC
         "db/redis_db.h"
         "db/tbb_rand_db.h"
         "db/tbb_scan_db.h"
-        "db/log_db.cc"
-        "db/log_db.h"
+        #"db/log_db.cc"
+        #"db/log_db.h"
         "db/pmem_rocksdb_db.cc"
         "db/pmem_rocksdb_db.h"
         "db/cceh_db.cc"
@@ -54,7 +54,7 @@ target_sources(ycsb PUBLIC
         "lib/string_hashtable.h"
         "lib/tbb_scan_hashtable.h"
         "lib/tbb_rand_hashtable.h"
-        "lib/pm_log_store.h"
+        #"lib/pm_log_store.h"
 
         "ycsbc.cc"
         )
