@@ -13,7 +13,7 @@ namespace cceh_db {
     //const std::string LOG_PATH("/pmem0/zyw/log_pool");
     const std::string LOG_PATH("log_pool");
     const uint64_t LOG_SIZE = 1 * 1024UL * 1024UL * 1024UL;
-    const size_t initialSize = 1024 * 16;
+    const size_t initialSize = 1024 * 4;
 
     void CCEHDB::Init() {
         bool exists = false;
@@ -66,7 +66,7 @@ namespace cceh_db {
                      std::vector<KVPair> &result) {
         std::string whole_key = pm::GenerateRawEntry(table + key);
         std::string value;
-        char* lookup = new char[key.size()];
+        char* lookup = new char[whole_key.size()];
         memcpy(lookup, whole_key.c_str(), whole_key.size());
         Key_t lookup_key = (Key_t)(lookup);
         auto ret = D_RW(HashTable_)->Get(lookup_key);
@@ -74,12 +74,13 @@ namespace cceh_db {
         char* res = new char[size];
         memcpy(res, ret, size);
         delete[] lookup;
+        delete[] res;
         return DB::kOK;
     }
 
     int CCEHDB::Delete(const std::string &table, const std::string &key) {
         std::string whole_key = pm::GenerateRawEntry(table + key);
-        char* lookup = new char[key.size()];
+        char* lookup = new char[whole_key.size()];
         memcpy(lookup, whole_key.c_str(), whole_key.size());
         Key_t lookup_key = (Key_t)(lookup);
         auto ret = D_RW(HashTable_)->Delete(lookup_key);

@@ -45,6 +45,10 @@ namespace pm {
         }
 
         PmAddr Alloc(size_t size){
+            if (tail_.load(std::memory_order_release) + size >= mapped_len_) {
+                printf("run out of log space\n");
+                exit(-1);
+            }
             return tail_.fetch_add(size, std::memory_order_relaxed);
         }
         void Append(PmAddr offset, const std::string& payload){
