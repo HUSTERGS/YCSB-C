@@ -23,6 +23,10 @@
 #include "db/cceh_db.h"
 #endif
 
+#ifdef USING_UTREE
+#include "db/utree_db.h"
+#endif
+
 using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -46,9 +50,15 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
   } else if (props["dbname"] == "pmem-rocksdb"){
       return new ycsb_pmem_rocksdb::PmemRocksDB;
 #endif
+
 #ifdef USING_CCEH
   } else if (props["dbname"] == "cceh"){
       return new cceh_db::CCEHDB;
+#endif
+
+#ifdef USING_UTREE
+  } else if (props["dbname"] == "utree"){
+      return new utree_db::uTreeDB;
 #endif
   }
   else return NULL;

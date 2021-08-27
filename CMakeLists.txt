@@ -10,7 +10,8 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 add_subdirectory(redis)
 
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
-option(WITH_CCEH "support for CCEH hash table" ON)
+option(WITH_CCEH "support for CCEH hash table" OFF)
+option(WITH_UTREE "support for uTree" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -43,9 +44,6 @@ target_sources(ycsb PUBLIC
         #"db/log_db.cc"
         #"db/log_db.h"
 
-        "db/cceh_db.cc"
-        "db/cceh_db.h"
-
         "lib/lock_stl_hashtable.h"
         "lib/mem_alloc.h"
         "lib/stl_hashtable.h"
@@ -61,6 +59,7 @@ target_sources(ycsb PUBLIC
 
 
 if (WITH_PMEM_ROCKSDB)
+    message("Define pmem rocksdb")
     add_definitions(-DWITH_DCPMM)
     add_definitions(-DON_DCPMM)
     add_definitions(-DUSING_PMEM_ROCKSDB)
@@ -74,6 +73,7 @@ if (WITH_PMEM_ROCKSDB)
 endif ()
 
 if (WITH_CCEH)
+    message("Define cceh")
     add_definitions(-DUSING_CCEH)
     add_subdirectory(lib/cceh)
     target_include_directories(ycsb PUBLIC lib/cceh/CCEH-PMDK/src ${LIBPMEMOBJ_INCLUDE_DIRS})
@@ -82,6 +82,19 @@ if (WITH_CCEH)
             "db/cceh_db.h"
             )
     target_link_libraries(ycsb cceh ${LIBPMEMOBJ_LIBRARIES})
+endif ()
+
+if (WITH_UTREE)
+    message("Define utree")
+    add_definitions(-DUSING_UTREE)
+    add_definitions(-DUSE_PMDK)
+    add_subdirectory(lib/utree)
+    target_include_directories(ycsb PUBLIC lib/utree/multiThread/utree ${LIBPMEMOBJ_INCLUDE_DIRS})
+    target_sources(ycsb PUBLIC
+            "db/utree_db.cc"
+            "db/utree_db.h"
+            )
+    target_link_libraries(ycsb utree ${LIBPMEMOBJ_LIBRARIES})
 endif ()
 
 target_include_directories(ycsb PUBLIC .)
