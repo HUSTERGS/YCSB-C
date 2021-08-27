@@ -92,7 +92,7 @@ namespace cceh_db {
         char* lookup = new char[whole_key.size()];
         memcpy(lookup, whole_key.c_str(), whole_key.size());
         Key_t lookup_key = (Key_t)(lookup);
-        auto ret = D_RW(HashTable_)->Delete(lookup_key);
+        auto ret = D_RW(HashTable_)->Delete(pop_, lookup_key);
         delete[] lookup;
         return DB::kOK;
     }

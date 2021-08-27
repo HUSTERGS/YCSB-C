@@ -10,7 +10,7 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 add_subdirectory(redis)
 
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
-option(WITH_CCEH "support for CCEH hash table" OFF)
+option(WITH_CCEH "support for CCEH hash table" ON)
 option(WITH_UTREE "support for uTree" ON)
 
 add_executable(ycsb "")
