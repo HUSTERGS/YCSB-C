@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(ycsb)
 
+set(CMAKE_CXX_STANDARD 17)
+
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(TBB REQUIRED tbb)
@@ -10,8 +12,9 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 add_subdirectory(redis)
 
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
-option(WITH_CCEH "support for CCEH hash table" ON)
-option(WITH_UTREE "support for uTree" ON)
+option(WITH_CCEH "support for CCEH hash table" OFF)
+option(WITH_UTREE "support for uTree" OFF)
+option(WITH_VIPER "support for Viper" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -97,5 +100,17 @@ if (WITH_UTREE)
     target_link_libraries(ycsb utree ${LIBPMEMOBJ_LIBRARIES})
 endif ()
 
+if (WITH_VIPER)
+    message("Define viper")
+    add_definitions(-DUSING_VIPER)
+    add_subdirectory(lib/viper)
+    target_sources(ycsb PUBLIC
+            "db/viper_db.cc"
+            "db/viper_db.h"
+            )
+    target_include_directories(ycsb PUBLIC lib/viper/include .)
+    target_link_libraries(ycsb viper stdc++fs)
+endif ()
+
 target_include_directories(ycsb PUBLIC .)
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} ${LIBPMEM_LIBRARIES} hiredis)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)

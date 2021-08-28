@@ -27,6 +27,10 @@
 #include "db/utree_db.h"
 #endif
 
+#ifdef USING_VIPER
+#include "db/viper_db.h"
+#endif
+
 using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -59,6 +63,11 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
 #ifdef USING_UTREE
   } else if (props["dbname"] == "utree"){
       return new utree_db::uTreeDB;
+#endif
+
+#ifdef USING_VIPER
+  } else if (props["dbname"] == "viper"){
+      return new viper_db::ViperDB;
 #endif
   }
   else return NULL;

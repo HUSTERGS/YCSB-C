@@ -1,20 +1,26 @@
 //
-// Created by zzyyyww on 2021/8/26.
+// Created by zzyyyww on 2021/8/27.
 //
 
-#ifndef YCSB_UTREE_DB_H
-#define YCSB_UTREE_DB_H
+#ifndef YCSB_VIPER_DB_H
+#define YCSB_VIPER_DB_H
 
+#include <string>
+#include <memory>
+//#include "viper/viper.hpp"
 #include "core/db.h"
-#include "utree.h"
-#include "global_log.h"
 
-namespace utree_db {
-    class uTreeDB: public ycsbc::DB {
+namespace viper {
+    template <typename K, typename V>
+    class Viper;
+}
+
+namespace viper_db {
+    class ViperDB: public ycsbc::DB {
     public:
-        uTreeDB(){}
+        ViperDB(){}
 
-        ~uTreeDB(){}
+        ~ViperDB(){}
 
         void Init();
 
@@ -37,10 +43,7 @@ namespace utree_db {
         int Delete(const std::string &table, const std::string &key);
 
     private:
-        btree* utree_;
-        pm::LogStore* log_;
-        bool inited_{false};
+        viper::Viper<std::string, std::string> *viper_;
     };
 }
-
-#endif //YCSB_UTREE_DB_H
+#endif //YCSB_VIPER_DB_H
