@@ -10,11 +10,6 @@
 //#include "viper/viper.hpp"
 #include "core/db.h"
 
-namespace viper {
-    template <typename K, typename V>
-    class Viper;
-}
-
 namespace viper_db {
     class ViperDB: public ycsbc::DB {
     public:
@@ -43,7 +38,6 @@ namespace viper_db {
         int Delete(const std::string &table, const std::string &key);
 
     private:
-        viper::Viper<std::string, std::string> *viper_;
     };
 }
 #endif //YCSB_VIPER_DB_H

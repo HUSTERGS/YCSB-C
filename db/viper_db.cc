@@ -1,37 +1,58 @@
 //
 // Created by zzyyyww on 2021/8/27.
 //
-
+#include <unordered_map>
+#include <sys/syscall.h>
 #include "viper_db.h"
 #include "viper/viper.hpp"
 using namespace ycsbc;
 namespace viper_db{
+
+    std::unique_ptr<viper::Viper<std::string, std::string>> global_viper_;
+    std::unordered_map<int, viper::Viper<std::string, std::string>::Client> client_map_;
+
     void ViperDB::Init(){
-        const size_t initial_size = 1073741824;  // 1 GiB
-        viper_ = viper::Viper<std::string, std::string>::create("viper_pool", initial_size).get();
+        if (global_viper_ == nullptr) {
+            const size_t initial_size = 1073741824;  // 1 GiB
+            global_viper_ = viper::Viper<std::string, std::string>::create("./viper_pool", initial_size);
+        }
     }
 
-    void ViperDB::Close(){}
+    void ViperDB::Close(){
+        if (global_viper_ == nullptr) {
+            global_viper_.release();
+        }
+    }
 
     int ViperDB::Insert(const std::string &table, const std::string &key,
                         std::vector<KVPair> &values){
+        int tid = syscall(SYS_gettid);
+        auto client = client_map_.find(tid);
+        if (client == client_map_.end()) {
+            client_map_.insert({tid, global_viper_->get_client()});
+            client = client_map_.find(tid);
+        }
         std::string whole_key(table + key);
         std::string whole_value;
         for (auto item : values) {
             whole_value.append(item.first + item.second);
         }
-        auto client = viper_->get_client();
-        client.put(whole_key, whole_value);
+        client->second.put(whole_key, whole_value);
         return DB::kOK;
     }
 
     int ViperDB::Read(const std::string &table, const std::string &key,
              const std::vector<std::string> *fields,
              std::vector<KVPair> &result){
+        int tid = syscall(SYS_gettid);
+        auto client = client_map_.find(tid);
+        if (client == client_map_.end()) {
+            client_map_.insert({tid, global_viper_->get_client()});
+            client = client_map_.find(tid);
+        }
         std::string whole_key(table + key);
         std::string whole_value;
-        auto client = viper_->get_client();
-        client.get(whole_key, &whole_value);
+        client->second.get(whole_key, &whole_value);
         return DB::kOK;
     }
 
@@ -47,9 +68,14 @@ namespace viper_db{
     }
 
     int ViperDB::Delete(const std::string &table, const std::string &key){
+        int tid = syscall(SYS_gettid);
+        auto client = client_map_.find(tid);
+        if (client == client_map_.end()) {
+            client_map_.insert({tid, global_viper_->get_client()});
+            client = client_map_.find(tid);
+        }
         std::string whole_key(table + key);
-        auto client = viper_->get_client();
-        client.remove(whole_key);
+        client->second.remove(whole_key);
         return DB::kOK;
     }
 
