@@ -64,7 +64,7 @@ namespace viper_db{
 
     int ViperDB::Update(const std::string &table, const std::string &key,
                std::vector<KVPair> &values){
-        return Insert(table, key, values);
+        return Delete(table, key);
     }
 
     int ViperDB::Delete(const std::string &table, const std::string &key){

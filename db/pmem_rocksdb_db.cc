@@ -69,7 +69,7 @@ namespace ycsb_pmem_rocksdb{
     }
 
     int PmemRocksDB::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        return Insert(table, key, values);
+        return Delete(table, key);
     }
 
     int PmemRocksDB::Delete(const std::string &table, const std::string &key) {

@@ -98,7 +98,7 @@ namespace cceh_db {
     }
 
     int CCEHDB::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        return Insert(table, key, values);
+        return Delete(table, key);
     }
 
     int CCEHDB::Scan(const std::string &table, const std::string &key, int record_count,

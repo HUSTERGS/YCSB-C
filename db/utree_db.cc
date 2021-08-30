@@ -93,7 +93,7 @@ namespace utree_db{
     }
 
     int uTreeDB::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        return Insert(table, key, values);
+        return Delete(table, key);
     }
 
     int uTreeDB::Delete(const std::string &table, const std::string &key) {
