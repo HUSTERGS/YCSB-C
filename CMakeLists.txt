@@ -5,6 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
+find_package(TBB REQUIRED)
+
+link_directories(lib/MetaKV/src/CLHT)
+find_library(libclht clht lib/MetaKV/src/CLHT REQUIRED)
+find_library(libssmem ssmem lib/MetaKV/src/CLHT REQUIRED)
+
 pkg_check_modules(TBB REQUIRED tbb)
 pkg_check_modules(LIBPMEM REQUIRED libpmem)
 pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
@@ -14,7 +20,9 @@ add_subdirectory(redis)
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
 option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
-option(WITH_VIPER "support for Viper" ON)
+option(WITH_VIPER "support for Viper" OFF)
+option(WITH_METAKV "support for metakv" ON)
+
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -111,6 +119,20 @@ if (WITH_VIPER)
     target_include_directories(ycsb PUBLIC lib/viper/include .)
     target_link_libraries(ycsb viper stdc++fs)
 endif ()
+
+if (WITH_METAKV)
+    message("Define metakv")
+    add_definitions(-DUSING_METAKV)
+    add_subdirectory(lib/MetaKV)
+    target_sources(ycsb PUBLIC
+            "db/metakv_db.cc"
+            "db/metakv_db.h"
+            )
+    
+    target_include_directories(ycsb PUBLIC lib/MetaKV/src)
+    target_link_libraries(ycsb metakv)
+endif()
+
 
 target_include_directories(ycsb PUBLIC .)
 target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)
