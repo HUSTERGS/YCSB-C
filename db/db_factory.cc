@@ -31,6 +31,10 @@
 #include "db/viper_db.h"
 #endif
 
+#ifdef USING_METAKV
+#include "db/metakv_db.h"
+#endif
+
 using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -68,6 +72,10 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
 #ifdef USING_VIPER
   } else if (props["dbname"] == "viper"){
       return new viper_db::ViperDB;
+#endif
+#ifdef USING_METAKV
+  } else if (props["dbname"] == "metakv") {
+      return new metakv::MetaKV;
 #endif
   }
   else return NULL;
