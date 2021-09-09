@@ -8,8 +8,6 @@ find_package(PkgConfig REQUIRED)
 find_package(TBB REQUIRED)
 
 link_directories(lib/MetaKV/src/CLHT)
-find_library(libclht clht lib/MetaKV/src/CLHT REQUIRED)
-find_library(libssmem ssmem lib/MetaKV/src/CLHT REQUIRED)
 
 pkg_check_modules(TBB REQUIRED tbb)
 pkg_check_modules(LIBPMEM REQUIRED libpmem)
@@ -128,7 +126,7 @@ if (WITH_METAKV)
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
-    
+
     target_include_directories(ycsb PUBLIC lib/MetaKV/src)
     target_link_libraries(ycsb metakv)
 endif()

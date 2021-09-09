@@ -7,6 +7,7 @@ namespace metakv {
         db_options.cceh_file_size = (1 << 20) * 128; // 100M
         db_options.data_file_size = (1 << 20) * 128; // 100M
         if (!db) {
+            db = new MetaDB();
             db->Open(db_options, "/pmem-fs/metakv");
         }
     }
