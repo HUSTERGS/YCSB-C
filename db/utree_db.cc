@@ -13,12 +13,28 @@ namespace utree_db{
         return *size;
     }
 
-    const std::string LOG_PATH("log_pool");
-    const uint64_t LOG_SIZE = 1 * 1024UL * 1024UL * 1024UL;
-    const size_t initialSize = 1024 * 4;
+    const std::string LOG_PATH("/mnt/pmem/log_pool");
+    const uint64_t LOG_SIZE = 60 * 1024UL * 1024UL * 1024UL;
+    const std::string UTREE_PATH("/mnt/pmem/utree_pool");
+    const uint64_t UTREE_SIZE = 40 * 1024UL * 1024UL * 1024UL;
+
+    size_t mapped_len;
+    int is_pmem;
 
     void uTreeDB::Init() {
         if (!inited_) {
+
+#ifndef USE_PMDK
+            start_addr = (char *) pmem_map_file(UTREE_PATH.c_str(), UTREE_SIZE, PMEM_FILE_CREATE, 0666, &mapped_len, &is_pmem);
+            if (start_addr == nullptr) {
+                fprintf(stderr, "map file failed [%s]\n", strerror(errno));
+                exit(-1);
+            }
+            curr_addr = start_addr;
+            printf("start_addr=%p, end_addr=%p\n", start_addr,
+                   start_addr + (uint64_t)40ULL * 1024ULL * 1024ULL * 1024ULL);
+#endif
+
             utree_ = new btree;
             global_log_ = new pm::LogStore(LOG_PATH, LOG_SIZE);
             log_ = global_log_;
@@ -29,6 +45,7 @@ namespace utree_db{
     }
 
     void uTreeDB::Close() {
+        pmem_unmap(start_addr, mapped_len);
         delete utree_;
         delete log_;
         global_log_ = nullptr;
@@ -45,6 +62,7 @@ namespace utree_db{
         log_->Append(addr, whole_key + whole_value);
         //TODO: the raw ptr should not be used here, use the offset instead!
         //uint64_t raw_addr = (uint64_t)(log_->raw() + addr);
+        //printf("insert [%s]\n", key.c_str());
         utree_->insert((uint64_t)(log_->raw() + addr), (char*)(log_->raw() + addr + whole_key.size()));
         auto ret = utree_->search((uint64_t)(log_->raw() + addr));
         assert(DecodeSize(ret) == (whole_value.size() - sizeof(uint64_t)));
@@ -73,22 +91,31 @@ namespace utree_db{
         memset(buf, 0, record_count * sizeof(uint64_t));
 
         std::string whole_key = pm::GenerateRawEntry(table + key);
-        std::string value;
         char* lookup = new char[whole_key.size()];
         memcpy(lookup, whole_key.c_str(), whole_key.size());
         entry_key_t lookup_key = (entry_key_t)(lookup);
 
-        utree_->scan(lookup_key, record_count, buf);
+        list_node_t* node = utree_->scan(lookup_key);
 
-        for (int i = 0; i < record_count && buf[i] != 0; ++i) {
-            char* tmp = (char*)buf[i];
-            uint64_t size = DecodeSize(tmp);
-            char *res = new char[size];
-            memcpy(res, res + sizeof(uint64_t), size);
-            delete[] res;
+        const int LEN_SIZE = sizeof(uint64_t);
+
+        list_node_t* n = node;
+        std::string tkey, tvalue;
+        uint64_t key_size = DecodeSize((char*)node->key);
+        tkey = std::string((char*)node->key + LEN_SIZE, key_size);
+        uint64_t value_size = DecodeSize((char*)node->ptr);
+        tvalue = std::string((char*)node->ptr + LEN_SIZE, value_size);
+        //printf("scan start at [%s]\n", tkey.c_str());
+
+        if (node!= nullptr) {
+            for (int i = 0; i < record_count && n != nullptr; n = n->next, i++) {
+                key_size = DecodeSize((char*)n->key);
+                value_size = DecodeSize((char*)n->ptr);
+                tkey = std::move(std::string((char*)n->key + LEN_SIZE, key_size));
+                tvalue = std::move(std::string((char*)n->ptr + LEN_SIZE, value_size));
+                //printf("scan get key [%s]\n", tkey.c_str());
+            }
         }
-        delete[] buf;
-
         return DB::kOK;
     }
 

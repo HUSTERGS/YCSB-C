@@ -3,6 +3,8 @@ project(ycsb)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(TBB REQUIRED tbb)
@@ -11,10 +13,14 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 
 add_subdirectory(redis)
 
+# only on DB can be set to ON when building ycsb
+#as some function name may conflict
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
 option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
-option(WITH_VIPER "support for Viper" ON)
+option(WITH_VIPER "support for Viper" OFF)
+option(WITH_HIKV "support for HiKV" OFF)
+option(WITH_METAKV "support for MetaKV" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -90,7 +96,7 @@ endif ()
 if (WITH_UTREE)
     message("Define utree")
     add_definitions(-DUSING_UTREE)
-    add_definitions(-DUSE_PMDK)
+    #add_definitions(-DUSE_PMDK)
     add_subdirectory(lib/utree)
     target_include_directories(ycsb PUBLIC lib/utree/multiThread/utree ${LIBPMEMOBJ_INCLUDE_DIRS})
     target_sources(ycsb PUBLIC
@@ -112,5 +118,32 @@ if (WITH_VIPER)
     target_link_libraries(ycsb viper stdc++fs)
 endif ()
 
+if (WITH_HIKV)
+    message("Define hikv")
+    add_definitions(-DUSING_HIKV)
+    add_subdirectory(lib/hikv)
+    target_sources(ycsb PUBLIC
+            "db/hikvdb.cc"
+            "db/hikvdb.h"
+            )
+    target_include_directories(ycsb PUBLIC lib/hikv .)
+    target_link_libraries(ycsb open_hikv)
+endif ()
+
+if (WITH_METAKV)
+    message("Define MetaKV")
+    add_definitions(-DUSING_METAKV)
+    add_subdirectory(lib/metakv)
+    target_sources(ycsb PUBLIC
+            "db/metakv_db.cc"
+            "db/metakv_db.h"
+            )
+    link_libraries(lib/metakv/src/CLHT)
+    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/metakv/src/CLHT REQUIRED)
+    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/metakv/src/CLHT REQUIRED)
+    target_include_directories(ycsb PUBLIC lib/metakv .)
+    target_link_libraries(ycsb metakv)
+endif ()
+
 target_include_directories(ycsb PUBLIC .)
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${LIBPMEM_LIBRARIES} ${TBB_LIBRARIES}  hiredis)

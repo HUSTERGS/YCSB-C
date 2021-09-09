@@ -34,6 +34,10 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     } else {
       oks += client.DoTransaction();
     }
+      if (oks % 1000000 == 0) {
+          std::cerr << "finished: " << oks << std::endl;
+          std::cerr.flush();
+      }
   }
   //db->Close();
   return oks;
@@ -71,13 +75,14 @@ int main(const int argc, const char *argv[]) {
     assert(n.valid());
     sum += n.get();
   }
-  cerr << "# Loading records:\t" << sum << endl;
   double duration1 = timer1.End();
-  cerr << "# Load throughput (KTPS)" << endl;
-  cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
-  cerr << total_ops / duration1 / 1000 << endl;
+  cout << "# Loading records:\t" << sum << " takes " << duration1 << " s"<< endl;
+  cout << "# Load throughput (KTPS)" << endl;
+  cout << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
+  cout << total_ops / duration1 / 1000 << endl;
 
   // Peforms transactions
+
   actual_ops.clear();
   total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
   utils::Timer<double> timer;
@@ -94,9 +99,10 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   double duration = timer.End();
-  cerr << "# Transaction throughput (KTPS)" << endl;
-  cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
-  cerr << total_ops / duration / 1000 << endl;
+  cout << "# Transaction throughput (KTPS)" << endl;
+  cout << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
+  cout << total_ops / duration / 1000 << endl;
+
   db->Close();
 }
 

@@ -14,12 +14,14 @@ using namespace ycsbc;
 
 namespace ycsb_pmem_rocksdb{
 
-    const std::string PMEM_PATH("/mnt/pmem");
-    const std::string DB_NAME("/mnt/rocksdb");
-    const uint64_t PMEM_SIZE = 1024UL * 1024UL * 1024UL;
+    const std::string PMEM_PATH("/mnt/pmem/");
+    const std::string DB_NAME("/mnt/pmem/rocksdb/");
+    const uint64_t PMEM_SIZE = 60 * 1024UL * 1024UL * 1024UL;
 
     void PmemRocksDB::Init() {
         rocksdb::Options options;
+
+        options.max_background_jobs = 32;
 
         options.create_if_missing = true;
         options.dcpmm_kvs_enable = true;

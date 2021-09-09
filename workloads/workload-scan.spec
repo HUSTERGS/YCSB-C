@@ -2,12 +2,14 @@
 # Workload-read: Read only workload
 #   Application example: Session store recording recent actions
 #
-#   Read/update ratio: 100/0
-#   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
+#   Scan ratio: 100
+#   Default data size: 256 B records (8 fields, 32 bytes each, plus key)
 #   Request distribution: uniform
 
-recordcount=10000
-operationcount=10000
+recordcount=160000000
+operationcount=1000000
+fieldcount=8
+fieldlength=32
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
