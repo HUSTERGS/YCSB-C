@@ -13,3 +13,6 @@
 [submodule "lib/viper"]
 	path = lib/viper
 	url = https://github.com/GlitterIsMe/viper.git
+[submodule "lib/MetaKV"]
+	path = lib/MetaKV
+	url = git@github.com:HUSTERGS/MetaKV.git

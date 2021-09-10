@@ -35,6 +35,10 @@
 #include "db/metakv_db.h"
 #endif
 
+#ifdef USING_CLHT
+#include "db/clht_db.h"
+#endif
+
 using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -76,6 +80,10 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
 #ifdef USING_METAKV
   } else if (props["dbname"] == "metakv") {
       return new metakv::MetaKV;
+#endif
+#ifdef USING_CLHT
+  } else if (props["dbname"] == "clht") {
+      return new clht_db::CLHT;
 #endif
   }
   else return NULL;

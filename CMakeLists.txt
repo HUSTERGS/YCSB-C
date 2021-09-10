@@ -20,7 +20,7 @@ option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
 option(WITH_VIPER "support for Viper" OFF)
 option(WITH_METAKV "support for metakv" ON)
-
+option(WITH_CLHT "support for clht" OFF)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -129,6 +129,22 @@ if (WITH_METAKV)
 
     target_include_directories(ycsb PUBLIC lib/MetaKV/src)
     target_link_libraries(ycsb metakv)
+endif()
+
+
+if (WITH_CLHT)
+    message("Define clht")
+    add_definitions(-DUSING_CLHT)
+
+    find_library(libclht NAMES clht HINTS lib/MetaKV/src/CLHT REQUIRED)
+    find_library(libssmem NAMES ssmem HINTS lib/MetaKV/src/CLHT REQUIRED)
+
+    target_sources(ycsb PUBLIC
+            "db/clht_db.cc"
+            "db/clht_db.h"
+            )
+    target_include_directories(ycsb PUBLIC lib/MetaKV/src/CLHT)
+    target_link_libraries(ycsb clht ssmem)
 endif()
 
 
