@@ -13,7 +13,8 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 
 add_subdirectory(redis)
 
-# only on DB can be set to ON when building ycsb
+# CAUTION: only on DB can be set to ON when building ycsb
+# TODO: Support all DB in the same time (some function names conflict currently)
 #as some function name may conflict
 option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
 option(WITH_CCEH "support for CCEH hash table" OFF)
