@@ -133,15 +133,15 @@ endif ()
 if (WITH_METAKV)
     message("Define MetaKV")
     add_definitions(-DUSING_METAKV)
-    add_subdirectory(lib/metakv)
+    add_subdirectory(lib/new-metakv)
     target_sources(ycsb PUBLIC
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
-    link_libraries(lib/metakv/src/CLHT)
-    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/metakv/src/CLHT REQUIRED)
-    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/metakv/src/CLHT REQUIRED)
-    target_include_directories(ycsb PUBLIC lib/metakv .)
+    link_libraries(lib/new-metakv/src/CLHT)
+    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/new-metakv/src/CLHT REQUIRED)
+    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/new-metakv/src/CLHT REQUIRED)
+    target_include_directories(ycsb PUBLIC lib/new-metakv .)
     target_link_libraries(ycsb metakv)
 endif ()
 

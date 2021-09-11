@@ -8,7 +8,7 @@ namespace ycsb_metakv{
     void ycsbMetaKV::Init() {
         Options options;
         options.cceh_file_size = 32UL * 1024 * 1024 * 1024;
-        options.data_file_size = 64UL * 1024 * 1024 * 1024;
+        options.data_file_size = 128UL * 1024 * 1024 * 1024;
         db = MetaDB{};
         db.Open(options, "/mnt/pmem/metakv");
     }
@@ -24,6 +24,7 @@ namespace ycsb_metakv{
         ycsbKey internal_key(whole_key.substr(0, whole_key.find('-')),
                     whole_key.substr(whole_key.find('-'), whole_key.size()));
         ycsbValue internal_value(whole_value);
+        //printf("insert %s\n", (table + key).c_str());
         bool res = db.Put(internal_key, internal_value);
         if (res) return DB::kOK;
         return DB::kErrorNoData;
