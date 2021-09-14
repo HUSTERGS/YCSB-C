@@ -7,7 +7,7 @@
 #   Request distribution: uniform
 
 recordcount=160000000
-operationcount=1000000
+operationcount=3200000
 
 #recordcount=160000
 #operationcount=32000
