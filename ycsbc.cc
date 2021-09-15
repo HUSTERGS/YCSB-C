@@ -23,20 +23,26 @@ void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
+std::atomic<uint64_t> total_finished;
+
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
   //db->Init();
   ycsbc::Client client(*db, *wl);
   int oks = 0;
+  int count = 0;
   for (int i = 0; i < num_ops; ++i) {
     if (is_loading) {
       oks += client.DoInsert();
+      count++;
     } else {
       oks += client.DoTransaction();
+      count++;
     }
-      if (oks % 1000000 == 0) {
-          std::cerr << "finished: " << oks << std::endl;
-          std::cerr.flush();
+      if (oks % 100000 == 0) {
+          fprintf(stderr, "...finished: %lu\r", total_finished.fetch_add(count, std::memory_order_acquire) + count);
+          fflush(stderr);
+          count = 0;
       }
   }
   //db->Close();
@@ -44,6 +50,7 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
 }
 
 int main(const int argc, const char *argv[]) {
+  total_finished.store(0);
   utils::Properties props;
   string file_name = ParseCommandLine(argc, argv, props);
 
@@ -82,7 +89,7 @@ int main(const int argc, const char *argv[]) {
   cout << total_ops / duration1 / 1000 << endl;
 
   // Peforms transactions
-
+  total_finished.store(0);
   actual_ops.clear();
   total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
   utils::Timer<double> timer;
