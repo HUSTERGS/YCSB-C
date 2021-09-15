@@ -6,7 +6,7 @@
 #define YCSB_UTREE_DB_H
 
 #include "core/db.h"
-#include "utree.h"
+#include "tree_db.h"
 #include "global_log.h"
 
 namespace utree_db {
@@ -37,8 +37,7 @@ namespace utree_db {
         int Delete(const std::string &table, const std::string &key);
 
     private:
-        btree* utree_;
-        pm::LogStore* log_;
+        treedb::TreeDB* db_;
         bool inited_{false};
     };
 }

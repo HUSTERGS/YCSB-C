@@ -9,7 +9,7 @@
 [submodule "lib/utree"]
 	path = lib/utree
 	url = https://github.com/GlitterIsMe/nvm-datastructure.git
-	branch = variable_length
+	branch = with-ff
 [submodule "lib/viper"]
 	path = lib/viper
 	url = https://github.com/GlitterIsMe/viper.git

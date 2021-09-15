@@ -11,17 +11,21 @@ pkg_check_modules(TBB REQUIRED tbb)
 pkg_check_modules(LIBPMEM REQUIRED libpmem)
 pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 
+include_directories(${LIBPMEM_INCLUDE_DIRS} ${LIBPMEMOBJ_INCLUDE_DIRS})
+link_libraries(${LIBPMEM_LIBRARIES})
+
 add_subdirectory(redis)
 
 # CAUTION: only on DB can be set to ON when building ycsb
 # TODO: Support all DB in the same time (some function names conflict currently)
 #as some function name may conflict
-option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
+option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
 option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
+option(WITH_FASTFAIR "support for FASTFAIR" OFF)
 option(WITH_VIPER "support for Viper" OFF)
 option(WITH_HIKV "support for HiKV" OFF)
-option(WITH_METAKV "support for MetaKV" ON)
+option(WITH_METAKV "support for MetaKV" OFF)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -86,25 +90,31 @@ if (WITH_CCEH)
     message("Define cceh")
     add_definitions(-DUSING_CCEH)
     add_subdirectory(lib/cceh)
-    target_include_directories(ycsb PUBLIC lib/cceh/CCEH-PMDK/src ${LIBPMEMOBJ_INCLUDE_DIRS})
+    target_include_directories(ycsb PUBLIC lib/cceh/CCEH-PMDK/src)
     target_sources(ycsb PUBLIC
             "db/cceh_db.cc"
             "db/cceh_db.h"
             )
-    target_link_libraries(ycsb cceh ${LIBPMEMOBJ_LIBRARIES})
+    target_link_libraries(ycsb cceh)
 endif ()
 
 if (WITH_UTREE)
     message("Define utree")
+    option(WITH_FASTFAIR "using fastfair or utree" OFF)
+    if (WITH_FASTFAIR)
+        add_definitions(-DFASTFAIR)
+    else()
+        add_definitions(-DUTREE)
+    endif ()
     add_definitions(-DUSING_UTREE)
-    #add_definitions(-DUSE_PMDK)
+    add_definitions(-DUSE_PMDK)
     add_subdirectory(lib/utree)
-    target_include_directories(ycsb PUBLIC lib/utree/multiThread/utree ${LIBPMEMOBJ_INCLUDE_DIRS})
+    target_include_directories(ycsb PUBLIC lib/utree/multiThread/)
     target_sources(ycsb PUBLIC
             "db/utree_db.cc"
             "db/utree_db.h"
             )
-    target_link_libraries(ycsb utree ${LIBPMEMOBJ_LIBRARIES})
+    target_link_libraries(ycsb treedb)
 endif ()
 
 if (WITH_VIPER)
@@ -134,17 +144,17 @@ endif ()
 if (WITH_METAKV)
     message("Define MetaKV")
     add_definitions(-DUSING_METAKV)
+    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/new-metakv/src/CLHT REQUIRED)
+    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/new-metakv/src/CLHT REQUIRED)
     add_subdirectory(lib/new-metakv)
     target_sources(ycsb PUBLIC
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
     link_libraries(lib/new-metakv/src/CLHT)
-    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/new-metakv/src/CLHT REQUIRED)
-    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/new-metakv/src/CLHT REQUIRED)
     target_include_directories(ycsb PUBLIC lib/new-metakv .)
     target_link_libraries(ycsb metakv)
 endif ()
 
 target_include_directories(ycsb PUBLIC .)
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${LIBPMEM_LIBRARIES} ${TBB_LIBRARIES}  hiredis)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)
