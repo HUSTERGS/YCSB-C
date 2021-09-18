@@ -19,12 +19,12 @@ add_subdirectory(redis)
 # CAUTION: only on DB can be set to ON when building ycsb
 # TODO: Support all DB in the same time (some function names conflict currently)
 #as some function name may conflict
-option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" ON)
+option(WITH_PMEM_ROCKSDB "support the pmem rocksdb" OFF)
 option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
 option(WITH_FASTFAIR "support for FASTFAIR" OFF)
 option(WITH_VIPER "support for Viper" OFF)
-option(WITH_HIKV "support for HiKV" OFF)
+option(WITH_HIKV "support for HiKV" ON)
 option(WITH_METAKV "support for MetaKV" OFF)
 
 add_executable(ycsb "")
@@ -69,7 +69,6 @@ target_sources(ycsb PUBLIC
 
         "ycsbc.cc"
         )
-
 
 
 if (WITH_PMEM_ROCKSDB)
