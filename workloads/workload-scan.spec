@@ -9,7 +9,7 @@
 recordcount=160000000
 operationcount=1000000
 fieldcount=8
-fieldlength=32
+fieldlength=16
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true

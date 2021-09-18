@@ -13,7 +13,7 @@ operationcount=3200000
 #operationcount=32000
 
 fieldcount=8
-fieldlength=32
+fieldlength=16
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
