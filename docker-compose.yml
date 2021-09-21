@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  # replace zyw_dev by your own name
+  zyw_dev:
+    build: .
+
+    volumes:
+      # mount the path to your source code, /home/src is created in the Dockerfile
+      - /home/zyw/src:/home/src
+      # mount pmem
+      - /mnt/AEP0:/mnt/pmem
+    ports:
+      # port
+      - "45678:22"
+    cap_add:
+      - ALL
+    privileged: true
