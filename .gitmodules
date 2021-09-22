@@ -17,10 +17,6 @@
 	path = lib/hikv
 	url = https://github.com/GlitterIsMe/open_hikv.git
 	branch = developing
-[submodule "lib/metakv"]
-	path = lib/metakv
-	url = https://github.com/HUSTERGS/MetaKV.git
-	branch = zyw
 [submodule "lib/new-metakv"]
 	path = lib/new-metakv
 	url = https://github.com/HUSTERGS/MetaKV.git
