@@ -44,15 +44,32 @@ namespace ycsb_metakv{
     }
 
     int ycsbMetaKV::Delete(const std::string &table, const std::string &key) {
-        return DB::kOK;
+        std::string whole_key(table + key);
+        ycsbKey internal_key(whole_key.substr(0, whole_key.find('-')),
+                             whole_key.substr(whole_key.find('-'), whole_key.size()));
+        bool res = db.Delete(internal_key);
+        if (res) {
+            return DB::kOK;
+        }
+        return DB::kErrorNoData;
     }
 
     int ycsbMetaKV::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        return DB::kOK;
+        // for workload a/b/c/d/e/f should use insert instead of delete
+        return Delete(table,key);
     }
 
     int ycsbMetaKV::Scan(const std::string &table, const std::string &key, int record_count,
                          const std::vector<std::string> *fields, std::vector<std::vector<KVPair>> &result) {
+        std::string whole_key(table + key);
+        Slice prefix = Slice(whole_key.substr(0, whole_key.find('-')));
+        std::vector<LogEntryRecord> records;
+        db.Scan(prefix,records);
+
+        for (const auto record : records) {
+           record.key.ToString();
+           record.value.ToString();
+        }
         return DB::kOK;
     }
 }
