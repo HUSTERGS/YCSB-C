@@ -24,8 +24,8 @@ option(WITH_CCEH "support for CCEH hash table" OFF)
 option(WITH_UTREE "support for uTree" OFF)
 option(WITH_FASTFAIR "support for FASTFAIR" OFF)
 option(WITH_VIPER "support for Viper" OFF)
-option(WITH_HIKV "support for HiKV" ON)
-option(WITH_METAKV "support for MetaKV" OFF)
+option(WITH_HIKV "support for HiKV" OFF)
+option(WITH_METAKV "support for MetaKV" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -141,19 +141,17 @@ if (WITH_HIKV)
 endif ()
 
 if (WITH_METAKV)
-    message("Define MetaKV")
+    message("Define metakv")
     add_definitions(-DUSING_METAKV)
-    find_library(CLHT_LIBRARIES NAMES clht PATHS lib/new-metakv/src/CLHT REQUIRED)
-    find_library(SSMEM_LIBRARIES NAMES ssmem PATHS lib/new-metakv/src/CLHT REQUIRED)
     add_subdirectory(lib/new-metakv)
     target_sources(ycsb PUBLIC
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
-    link_libraries(lib/new-metakv/src/CLHT)
-    target_include_directories(ycsb PUBLIC lib/new-metakv .)
+    target_link_directories(ycsb PUBLIC lib/new-metakv/src/CLHT)
+    target_include_directories(ycsb PUBLIC lib/new-metakv/src)
     target_link_libraries(ycsb metakv)
-endif ()
+endif()
 
 target_include_directories(ycsb PUBLIC .)
 target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)

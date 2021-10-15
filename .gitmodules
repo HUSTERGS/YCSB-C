@@ -19,5 +19,4 @@
 	branch = developing
 [submodule "lib/new-metakv"]
 	path = lib/new-metakv
-	url = https://github.com/HUSTERGS/MetaKV.git
-	branch = zyw-new-layout
+	url = git@github.com:HUSTERGS/MetaKV.git

@@ -6,9 +6,9 @@
 #define YCSB_METALV_DB_H
 
 #include "core/db.h"
-#include "src/MetaDB.h"
-#include "src/format.h"
-#include "src/coding.h"
+#include "MetaDB.h"
+#include "format.h"
+#include "coding.h"
 namespace ycsb_metakv {
 
     struct ycsbKey: public MetaKey {
