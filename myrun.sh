@@ -1,4 +1,28 @@
-./ycsb -db pmem-rocksdb -threads 32 -P ../workloads/workload-insert.spec -file_ratio 20
-./ycsb -db pmem-rocksdb -threads 32 -P ../workloads/workload-read.spec -file_ratio 20
-./ycsb -db pmem-rocksdb -threads 32 -P ../workloads/workload-delete.spec -file_ratio 20
-./ycsb -db pmem-rocksdb -threads 32 -P ../workloads/workload-scan.spec -file_ratio 20
+dbname="metakv"
+types=(
+  "-insert"
+  "-read"
+  # "-delete"
+  "-scan"
+#   "a"
+#   "b"
+#   "c"
+#   "d"
+#   "e"
+#   "f"
+)
+rm -f ycsbc.output
+for tn in 32
+do
+    for type in ${types[@]} ;
+    do
+        for ratio in 20 200 2000 20000 200000
+        do
+        rm -f /mnt/pmem/metakv/*
+        echo "Running $dbname workload$type with $tn threads && ratio $ratio " >> "ycsbc.output"
+        cmd="numactl -N 0 ./ycsb -db $dbname -threads $tn -P ../workloads/workload$type.spec -file_ratio $ratio >> "ycsbc.output" "
+        # echo $cmd >>ycsbc.output
+        eval $cmd
+        done
+    done
+done

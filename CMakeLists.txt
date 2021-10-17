@@ -150,7 +150,7 @@ if (WITH_METAKV)
             )
     target_link_directories(ycsb PUBLIC lib/new-metakv/src/CLHT)
     target_include_directories(ycsb PUBLIC lib/new-metakv/src)
-    target_link_libraries(ycsb metakv)
+    target_link_libraries(ycsb metakv ${TBB_LIBRARIES})
 endif()
 
 target_include_directories(ycsb PUBLIC .)

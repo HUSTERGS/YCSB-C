@@ -9,6 +9,7 @@
 #include "MetaDB.h"
 #include "format.h"
 #include "coding.h"
+#include <atomic>
 namespace ycsb_metakv {
 
     struct ycsbKey: public MetaKey {
@@ -91,6 +92,7 @@ namespace ycsb_metakv {
 
     private:
         MetaDB db;
+        std::atomic_uint64_t cnt;
     };
 }
 #endif //YCSB_METALV_DB_H

@@ -11,9 +11,13 @@ namespace ycsb_metakv{
         options.data_file_size = 128UL * 1024 * 1024 * 1024;
         db = MetaDB{};
         db.Open(options, "/mnt/pmem/metakv");
+
+        cnt.store(0);
     }
 
-    void ycsbMetaKV::Close() {}
+    void ycsbMetaKV::Close() {
+        printf("metakv delete false cnt:%lu\n",cnt.load());
+    }
 
     int ycsbMetaKV::Insert(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
         std::string whole_key(table + key);
@@ -48,10 +52,12 @@ namespace ycsb_metakv{
         ycsbKey internal_key(whole_key.substr(0, whole_key.find('-')),
                              whole_key.substr(whole_key.find('-'), whole_key.size()));
         bool res = db.Delete(internal_key);
-        if (res) {
-            return DB::kOK;
+        if (!res) {
+        //     return DB::kOK;
+            cnt++;
         }
-        return DB::kErrorNoData;
+        // return DB::kErrorNoData;
+        return DB::kOK;
     }
 
     int ycsbMetaKV::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
@@ -62,10 +68,13 @@ namespace ycsb_metakv{
     int ycsbMetaKV::Scan(const std::string &table, const std::string &key, int record_count,
                          const std::vector<std::string> *fields, std::vector<std::vector<KVPair>> &result) {
         std::string whole_key(table + key);
-        Slice prefix = Slice(whole_key.substr(0, whole_key.find('-')));
+        std::string tmp = whole_key.substr(0, whole_key.find('-'));
+        Slice prefix = Slice(tmp);
+        // printf("whole_key:%s\n prefix:%s\n",whole_key.c_str(),whole_key.substr(0,whole_key.find('-')).c_str());
         std::vector<LogEntryRecord> records;
+        // printf("%s %d prefix:%s get #%lu items\n",__func__,__LINE__,prefix.ToString().c_str(),records.size());
         db.Scan(prefix,records);
-
+        // printf("%s %d prefix:%s get #%lu items\n",__func__,__LINE__,prefix.ToString().c_str(),records.size());
         for (const auto record : records) {
            record.key.ToString();
            record.value.ToString();

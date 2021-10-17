@@ -195,7 +195,7 @@ class CoreWorkload {
   int zero_padding_;
 
   uint64_t prefix_num;
-  char file_ratio;
+  uint64_t file_ratio;
 };
 
 inline std::string CoreWorkload::NextSequenceKey() {

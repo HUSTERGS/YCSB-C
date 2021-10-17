@@ -7,7 +7,7 @@ services:
 
     volumes:
       # mount the path to your source code, /home/src is created in the Dockerfile
-      - /home/zyw/src:/home/src
+      - /home/mxh:/home/mxh
       # mount pmem
       - /mnt/AEP0:/mnt/pmem
     ports:
