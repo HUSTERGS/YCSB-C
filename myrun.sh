@@ -1,22 +1,22 @@
-dbname="metakv"
+dbname="hybridhash"
 types=(
   "-insert"
   "-read"
-  # "-delete"
+  "-delete"
   "-scan"
-#   "a"
-#   "b"
-#   "c"
-#   "d"
-#   "e"
-#   "f"
+  "a"
+  "b"
+  "c"
+  "d"
+  "e"
+  "f"
 )
 rm -f ycsbc.output
 for tn in 32
 do
     for type in ${types[@]} ;
     do
-        for ratio in 20 200 2000 20000 200000
+        for ratio in 2000
         do
         rm -f /mnt/pmem/metakv/*
         echo "Running $dbname workload$type with $tn threads && ratio $ratio " >> "ycsbc.output"

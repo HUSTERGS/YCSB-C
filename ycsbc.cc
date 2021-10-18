@@ -28,6 +28,9 @@ std::atomic<uint64_t> total_finished;
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
   //db->Init();
+#ifdef USING_HybridHash
+  ((ycsb_hybridhash::ycsbHybridHash*)db)->clht_init();
+#endif
   ycsbc::Client client(*db, *wl);
   int oks = 0;
   int count = 0;

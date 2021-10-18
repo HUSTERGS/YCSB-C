@@ -75,6 +75,7 @@ inline int Client::TransactionRead() {
   std::vector<DB::KVPair> result;
   if (!workload_.read_all_fields()) {
     std::vector<std::string> fields;
+    // printf("%s %d\n",__func__,__LINE__);
     fields.push_back("field" + workload_.NextFieldName());
     return db_.Read(table, key, &fields, result);
   } else {

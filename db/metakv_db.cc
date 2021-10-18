@@ -38,8 +38,10 @@ namespace ycsb_metakv{
                          std::vector<KVPair> &result) {
         std::string whole_key(table + key);
         ycsbValue value;
-        ycsbKey internal_key(whole_key.substr(0, whole_key.find('-')),
-                             whole_key.substr(whole_key.find('-'), whole_key.size()));
+        std::string prefix = whole_key.substr(0, whole_key.find('-'));
+        std::string fname = whole_key.substr(whole_key.find('-'), whole_key.size());
+        // printf("prefix:%s fname:%s\n",prefix.c_str(),fname.c_str());
+        ycsbKey internal_key(prefix,fname);
         bool res = db.Get(internal_key, value);
         if (res) {
             return DB::kOK;

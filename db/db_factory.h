@@ -9,6 +9,11 @@
 #ifndef YCSB_C_DB_FACTORY_H_
 #define YCSB_C_DB_FACTORY_H_
 
+
+#ifdef USING_HybridHash
+#include "db/hybridhash_db.h"
+#endif
+
 #include "core/db.h"
 #include "core/properties.h"
 

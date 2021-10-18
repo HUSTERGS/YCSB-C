@@ -87,6 +87,12 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
       } else if (props["dbname"] == "metakv"){
       return new ycsb_metakv::ycsbMetaKV;
 #endif
+
+#ifdef USING_HybridHash
+      } else if (props["dbname"] == "hybridhash"){
+      return new ycsb_hybridhash::ycsbHybridHash;
+#endif
+
   }
   else return NULL;
 }
