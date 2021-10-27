@@ -185,6 +185,7 @@ class CoreWorkload {
   bool write_all_fields_;
   Generator<uint64_t> *field_len_generator_;
   Generator<uint64_t> *key_generator_;
+  Generator<uint64_t> *inode_generator_;
   DiscreteGenerator<Operation> op_chooser_;
   Generator<uint64_t> *key_chooser_;
   Generator<uint64_t> *field_chooser_;
@@ -231,11 +232,14 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   int zeros = zero_padding_ - key_num_str.length();
   zeros = std::max(0, zeros);
   //return std::string("user").append(zeros, '0').append(key_num_str);
-  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
+//  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
+    // remove user prefix
+    return std::string("").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
 }
 
 inline std::string CoreWorkload::NextFieldName() {
-  return std::string("field").append(std::to_string(field_chooser_->Next()));
+//  return std::string("field").append(std::to_string(field_chooser_->Next()));
+  return std::to_string(field_chooser_->Next());
 }
   
 } // ycsbc

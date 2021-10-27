@@ -3,7 +3,7 @@ project(ycsb)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
@@ -143,14 +143,13 @@ endif ()
 if (WITH_METAKV)
     message("Define metakv")
     add_definitions(-DUSING_METAKV)
-    add_subdirectory(lib/new-metakv)
+    add_subdirectory(lib/metakv)
     target_sources(ycsb PUBLIC
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
-    target_link_directories(ycsb PUBLIC lib/new-metakv/src/CLHT)
-    target_include_directories(ycsb PUBLIC lib/new-metakv/src)
-    target_link_libraries(ycsb metakv ${TBB_LIBRARIES})
+    target_include_directories(ycsb PUBLIC lib/metakv/ .)
+    target_link_libraries(ycsb metakv)
 endif()
 
 target_include_directories(ycsb PUBLIC .)

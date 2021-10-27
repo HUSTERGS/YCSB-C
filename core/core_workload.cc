@@ -115,9 +115,10 @@ void CoreWorkload::Init(const utils::Properties &p) {
   } else {
     ordered_inserts_ = true;
   }
-  
+  // 默认从0开始递增，但是在BuildKeyName当中会调用一次hash，所以其实是一样的？
   key_generator_ = new CounterGenerator(insert_start);
-  
+
+
   if (read_proportion > 0) {
     op_chooser_.AddValue(READ, read_proportion);
   }
@@ -169,6 +170,8 @@ void CoreWorkload::Init(const utils::Properties &p) {
 
   file_ratio = std::stoi(p.GetProperty("file_ratio", "12"));
   prefix_num = record_count_ / file_ratio;
+  // 简单来讲就是，pinode是[0, prefix_num]，那么inode就简单的设置为 [0, record_count_ ) + prefix_num，使得pinode和inode完全分隔开
+  inode_generator_ = new UniformGenerator(prefix_num, prefix_num + record_count_ );
 }
 
 ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(
@@ -192,12 +195,14 @@ ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(
 void CoreWorkload::BuildValues(std::vector<ycsbc::DB::KVPair> &values) {
   for (int i = 0; i < field_count_; ++i) {
     ycsbc::DB::KVPair pair;
-    pair.first.append("field").append(std::to_string(i));
-    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar());
+//    pair.first.append("field").append(std::to_string(i));
+    pair.first.append(std::to_string(inode_generator_->Next())); // inode
+    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar()); // stat
     values.push_back(pair);
   }
 }
 
+// TODO: update 还需要改
 void CoreWorkload::BuildUpdate(std::vector<ycsbc::DB::KVPair> &update) {
   ycsbc::DB::KVPair pair;
   pair.first.append(NextFieldName());
