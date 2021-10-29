@@ -9,7 +9,7 @@
 #ifdef __cplusplus
 extern "C" {
 #include "include/metadb.h"
-};
+}
 
 #endif
 

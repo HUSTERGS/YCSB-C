@@ -234,7 +234,7 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   //return std::string("user").append(zeros, '0').append(key_num_str);
 //  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
     // remove user prefix
-    return std::string("").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
+    return std::string("").append(prefix_str).append("-").append(key_num_str);
 }
 
 inline std::string CoreWorkload::NextFieldName() {

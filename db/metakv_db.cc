@@ -8,10 +8,10 @@ namespace ycsb_metakv{
     void ycsbMetaKV::Init() {
         struct DBOption db_option;
         SetDefaultDBop(&db_option);
-#ifdef DMETAKV_CACHE
-        SetCacheOp(1, 1, (100ul * (1ul << 20)), (100ul * (1ul << 20)))
-#endif
-//        DBOpen(&db_option,"/mnt/AEP1/metakv", &db);
+//#ifdef DMETAKV_CACHE
+//        SetCacheOp(1, 1, (100ul * (1ul << 20)), (100ul * (1ul << 20)))
+//#endif
+        DBOpen(&db_option,"/mnt/pm0/metakv", &db);
     }
 
     void ycsbMetaKV::Close() {
@@ -34,7 +34,8 @@ namespace ycsb_metakv{
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = std::stoull(values.at(0).first);
         std::string stat_str = values.at(0).second;
-
+        printf("pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
+        fflush(stdout);
         if (MetaKVPut(&db, pinode, &fname, inode, reinterpret_cast<struct stat *>(stat_str.data())) != 0) {
             return DB::kErrorNoData;
         }
