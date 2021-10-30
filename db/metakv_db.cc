@@ -15,7 +15,7 @@ namespace ycsb_metakv{
     }
 
     void ycsbMetaKV::Close() {
-        DBExit(&db);
+//        DBExit(&db);
     }
 
     int ycsbMetaKV::Insert(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
@@ -34,8 +34,8 @@ namespace ycsb_metakv{
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = std::stoull(values.at(0).first);
         std::string stat_str = values.at(0).second;
-        printf("pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
-        fflush(stdout);
+//        printf("pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
+//        fflush(stdout);
         if (MetaKVPut(&db, pinode, &fname, inode, reinterpret_cast<struct stat *>(stat_str.data())) != 0) {
             return DB::kErrorNoData;
         }

@@ -171,7 +171,9 @@ void CoreWorkload::Init(const utils::Properties &p) {
   file_ratio = std::stoi(p.GetProperty("file_ratio", "12"));
   prefix_num = record_count_ / file_ratio;
   // 简单来讲就是，pinode是[0, prefix_num]，那么inode就简单的设置为 [0, record_count_ ) + prefix_num，使得pinode和inode完全分隔开
-  inode_generator_ = new UniformGenerator(prefix_num, prefix_num + record_count_ );
+  // 从prefix_num开始
+  inode_generator_ = new CounterGenerator(prefix_num);
+//  inode_generator_ = new UniformGenerator(prefix_num, prefix_num + record_count_ );
 }
 
 ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(
