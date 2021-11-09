@@ -174,7 +174,7 @@ class CoreWorkload {
     if (field_chooser_) delete field_chooser_;
     if (scan_len_chooser_) delete scan_len_chooser_;
   }
-  
+  uint64_t file_ratio;
  protected:
   static Generator<uint64_t> *GetFieldLenGenerator(const utils::Properties &p);
   std::string BuildKeyName(uint64_t key_num);
@@ -196,7 +196,7 @@ class CoreWorkload {
   int zero_padding_;
 
   uint64_t prefix_num;
-  uint64_t file_ratio;
+
 };
 
 inline std::string CoreWorkload::NextSequenceKey() {

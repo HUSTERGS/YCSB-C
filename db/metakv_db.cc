@@ -34,8 +34,8 @@ namespace ycsb_metakv{
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = std::stoull(values.at(0).first);
         std::string stat_str = values.at(0).second;
-//        printf("pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
-//        fflush(stdout);
+        printf("INSERT: pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
+        fflush(stdout);
         if (MetaKVPut(&db, pinode, &fname, inode, reinterpret_cast<struct stat *>(stat_str.data())) != 0) {
             return DB::kErrorNoData;
         }
@@ -54,10 +54,14 @@ namespace ycsb_metakv{
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = 0;
         struct Slice stat_slice;
-        if (MetaKVGet(&db, pinode, &fname, &inode, &stat_slice) != 0) {
+
+        printf("GET: pinode: %lu, fname: %s\n", pinode, tmp_fname.c_str());
+        fflush(stdout);
+
+        if (MetaKVGet(&db, pinode, &fname, &inode, &stat_slice) != 1) {
             return DB::kErrorNoData;
         }
-        return DB::kErrorNoData;
+        return DB::kOK;
     }
 
     int ycsbMetaKV::Delete(const std::string &table, const std::string &key) {
