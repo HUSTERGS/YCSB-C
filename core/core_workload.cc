@@ -169,6 +169,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
   }
 
   file_ratio = std::stoi(p.GetProperty("file_ratio", "12"));
+  compress = (std::stoi(p.GetProperty("compress", "1")) == 1);
   prefix_num = record_count_ / file_ratio;
   // 简单来讲就是，pinode是[0, prefix_num]，那么inode就简单的设置为 [0, record_count_ ) + prefix_num，使得pinode和inode完全分隔开
   // 从prefix_num开始
@@ -198,8 +199,14 @@ void CoreWorkload::BuildValues(std::vector<ycsbc::DB::KVPair> &values) {
   for (int i = 0; i < field_count_; ++i) {
     ycsbc::DB::KVPair pair;
 //    pair.first.append("field").append(std::to_string(i));
-    pair.first.append(std::to_string(inode_generator_->Next())); // inode
-    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar()); // stat
+    uint64_t inode = inode_generator_->Next();
+    // inode to string，不转成string，提高速度
+    pair.first.append(std::to_string(inode));
+//    pair.first.append(std::string{reinterpret_cast<const char *>(&inode), sizeof(inode)}); // inode
+    // 这个地方感觉会有性能瓶颈
+//    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar()); // stat
+    pair.second.append(field_len_generator_->Next(), inode % 93 + 33); // stat
+
     values.push_back(pair);
   }
 }

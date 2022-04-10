@@ -148,7 +148,21 @@ if (WITH_METAKV)
             "db/metakv_db.cc"
             "db/metakv_db.h"
             )
-    target_include_directories(ycsb PUBLIC lib/metakv/ .)
+    target_include_directories(ycsb PUBLIC
+            lib/metakv/
+            lib/metakv/allocator
+            lib/metakv/cache
+            lib/metakv/compress
+            lib/metakv/db
+            lib/metakv/debug
+            lib/metakv/gc
+            lib/metakv/include
+            lib/metakv/indexes
+            lib/metakv/tables
+            lib/metakv/transaction
+            lib/metakv/utils
+            .
+            )
     target_link_libraries(ycsb metakv)
 endif()
 

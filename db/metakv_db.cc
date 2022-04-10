@@ -6,16 +6,20 @@
 
 namespace ycsb_metakv{
     void ycsbMetaKV::Init() {
-        struct DBOption db_option;
+        struct DBOption db_option{};
         SetDefaultDBop(&db_option);
 //#ifdef DMETAKV_CACHE
 //        SetCacheOp(1, 1, (100ul * (1ul << 20)), (100ul * (1ul << 20)))
 //#endif
-        DBOpen(&db_option,"/mnt/pm0/metakv", &db);
+        db_option.stat_options.compression = true;
+        db_option.stat_options.max_wbl_num = 1000;
+        db_option.stat_options.counter_policy_max_entry = 1000;
+
+        DBOpen(&db_option,"/mnt/AEP0/metakv", &db);
     }
 
     void ycsbMetaKV::Close() {
-//        DBExit(&db);
+        DBExit(&db);
     }
 
     int ycsbMetaKV::Insert(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
@@ -30,13 +34,16 @@ namespace ycsb_metakv{
 
         uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
         std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
-        struct Slice fname;
+        Slice fname;
+//        Slice fstat;
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = std::stoull(values.at(0).first);
         std::string stat_str = values.at(0).second;
-        printf("INSERT: pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
-        fflush(stdout);
-        if (MetaKVPut(&db, pinode, &fname, inode, reinterpret_cast<struct stat *>(stat_str.data())) != 0) {
+//        SliceInit(&fstat, stat_str.size(), stat_str.data());
+//        printf("INSERT: pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
+//        fflush(stdout);
+
+        if (MetaKVPut(&db, pinode, &fname, inode, (struct stat *)stat_str.data()) != OK) {
             return DB::kErrorNoData;
         }
 
@@ -50,15 +57,15 @@ namespace ycsb_metakv{
 
         uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
         std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
-        struct Slice fname;
+        Slice fname;
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         uint64_t inode = 0;
-        struct Slice stat_slice;
+        Slice stat_slice;
 
         printf("GET: pinode: %lu, fname: %s\n", pinode, tmp_fname.c_str());
         fflush(stdout);
 
-        if (MetaKVGet(&db, pinode, &fname, &inode, &stat_slice) != 1) {
+        if (MetaKVGet(&db, pinode, &fname, &inode, &stat_slice) != OK) {
             return DB::kErrorNoData;
         }
         return DB::kOK;
@@ -70,7 +77,7 @@ namespace ycsb_metakv{
 
         uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
         std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
-        struct Slice fname;
+        Slice fname;
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         if (MetaKVDelete(&db, pinode, &fname) != 0) {
             return DB::kErrorNoData;
@@ -90,7 +97,7 @@ namespace ycsb_metakv{
 
         uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
         std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
-        struct Slice fname;
+        Slice fname;
         SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
         char * r = nullptr;
         if (MetaKVScan(&db, pinode, &r) != 0 || r == nullptr) {

@@ -175,6 +175,7 @@ class CoreWorkload {
     if (scan_len_chooser_) delete scan_len_chooser_;
   }
   uint64_t file_ratio;
+  bool compress;
  protected:
   static Generator<uint64_t> *GetFieldLenGenerator(const utils::Properties &p);
   std::string BuildKeyName(uint64_t key_num);
