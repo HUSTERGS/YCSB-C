@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10)
 project(ycsb)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -14,7 +14,7 @@ pkg_check_modules(LIBPMEMOBJ REQUIRED libpmemobj)
 include_directories(${LIBPMEM_INCLUDE_DIRS} ${LIBPMEMOBJ_INCLUDE_DIRS})
 link_libraries(${LIBPMEM_LIBRARIES})
 
-add_subdirectory(redis)
+# add_subdirectory(redis)
 
 # CAUTION: only on DB can be set to ON when building ycsb
 # TODO: Support all DB in the same time (some function names conflict currently)
@@ -25,7 +25,8 @@ option(WITH_UTREE "support for uTree" OFF)
 option(WITH_FASTFAIR "support for FASTFAIR" OFF)
 option(WITH_VIPER "support for Viper" OFF)
 option(WITH_HIKV "support for HiKV" OFF)
-option(WITH_METAKV "support for MetaKV" ON)
+option(WITH_METAKV "support for MetaKV" OFF)
+option(WITH_HWDB "support for HWDB" ON)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -51,8 +52,8 @@ target_sources(ycsb PUBLIC
         "db/hashtable_db.cc"
         "db/hashtable_db.h"
         "db/lock_stl_db.h"
-        "db/redis_db.cc"
-        "db/redis_db.h"
+#        "db/redis_db.cc"
+#        "db/redis_db.h"
         "db/tbb_rand_db.h"
         "db/tbb_scan_db.h"
         #"db/log_db.cc"
@@ -69,6 +70,16 @@ target_sources(ycsb PUBLIC
 
         "ycsbc.cc"
         )
+
+if (WITH_HWDB)
+    message("Define HWDB")
+    add_definitions(-DYCSB_HWDB)
+    target_sources(ycsb PUBLIC
+            "db/hwdb_db.cc"
+            "db/hwdb_db.h"
+            )
+    target_link_libraries(ycsb hwdb)
+endif()
 
 
 if (WITH_PMEM_ROCKSDB)
@@ -167,4 +178,4 @@ if (WITH_METAKV)
 endif()
 
 target_include_directories(ycsb PUBLIC .)
-target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES}  hiredis)
+target_link_libraries(ycsb ${CMAKE_THREAD_LIBS_INIT} ${TBB_LIBRARIES} )

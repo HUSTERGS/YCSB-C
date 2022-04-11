@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include "iostream"
 #include "db.h"
 #include "properties.h"
 #include "generator.h"
@@ -218,13 +219,14 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
     key_num = utils::Hash(key_num);
   }
 
-  auto pos = key_num % prefix_num;
-  std::string prefix_str = std::to_string(pos);
-  std::string key_num_str = std::to_string(key_num);
+  auto pos = key_num / file_ratio;
+  std::string pinode(reinterpret_cast<const char*>(&pos), sizeof(pos));
+  std::string fname;
+  fname = std::string(16-fname.size(),'0') + fname;
   //return std::string("user").append(zeros, '0').append(key_num_str);
   //  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
   // remove user prefix
-  return prefix_str.append("-").append(key_num_str);
+  return pinode+fname;
 }
 
 inline std::string CoreWorkload::NextFieldName() {

@@ -68,7 +68,7 @@ const string CoreWorkload::SCAN_LENGTH_DISTRIBUTION_PROPERTY =
 const string CoreWorkload::SCAN_LENGTH_DISTRIBUTION_DEFAULT = "uniform";
 
 const string CoreWorkload::INSERT_ORDER_PROPERTY = "insertorder";
-const string CoreWorkload::INSERT_ORDER_DEFAULT = "hashed";
+const string CoreWorkload::INSERT_ORDER_DEFAULT = "1";
 
 const string CoreWorkload::INSERT_START_PROPERTY = "insertstart";
 const string CoreWorkload::INSERT_START_DEFAULT = "0";
@@ -109,12 +109,8 @@ void CoreWorkload::Init(const utils::Properties &p) {
                                                     READ_ALL_FIELDS_DEFAULT));
   write_all_fields_ = utils::StrToBool(p.GetProperty(WRITE_ALL_FIELDS_PROPERTY,
                                                      WRITE_ALL_FIELDS_DEFAULT));
-  
-  if (p.GetProperty(INSERT_ORDER_PROPERTY, INSERT_ORDER_DEFAULT) == "hashed") {
-    ordered_inserts_ = false;
-  } else {
-    ordered_inserts_ = true;
-  }
+
+  ordered_inserts_ = std::stoi(p.GetProperty(INSERT_ORDER_PROPERTY, INSERT_ORDER_DEFAULT));
   // 默认从0开始递增，但是在BuildKeyName当中会调用一次hash，所以其实是一样的？
   key_generator_ = new CounterGenerator(insert_start);
 
@@ -168,7 +164,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
         scan_len_dist);
   }
 
-  file_ratio = std::stoi(p.GetProperty("file_ratio", "12"));
+  file_ratio = std::stoi(p.GetProperty("file_ratio", "10"));
   compress = (std::stoi(p.GetProperty("compress", "1")) == 1);
   prefix_num = record_count_ / file_ratio;
   // 简单来讲就是，pinode是[0, prefix_num]，那么inode就简单的设置为 [0, record_count_ ) + prefix_num，使得pinode和inode完全分隔开

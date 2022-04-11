@@ -39,6 +39,10 @@
 #include "db/metakv_db.h"
 #endif
 
+#ifdef YCSB_HWDB
+#include "db/hwdb_db.h"
+#endif
+
 using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -48,14 +52,14 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
     return new BasicDB;
   } else if (props["dbname"] == "lock_stl") {
     return new LockStlDB;
-  } else if (props["dbname"] == "redis") {
-    int port = stoi(props["port"]);
-    int slaves = stoi(props["slaves"]);
-    return new RedisDB(props["host"].c_str(), port, slaves);
-  } else if (props["dbname"] == "tbb_rand") {
-    return new TbbRandDB;
-  } else if (props["dbname"] == "tbb_scan") {
-    return new TbbScanDB;
+//  } else if (props["dbname"] == "redis") {
+//    int port = stoi(props["port"]);
+//    int slaves = stoi(props["slaves"]);
+//    return new RedisDB(props["host"].c_str(), port, slaves);
+//  } else if (props["dbname"] == "tbb_rand") {
+//    return new TbbRandDB;
+//  } else if (props["dbname"] == "tbb_scan") {
+//    return new TbbScanDB;
   //} else if (props["dbname"] == "logdb"){
   //    return new LogDB;
 #ifdef USING_PMEM_ROCKSDB
@@ -91,6 +95,12 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
 #ifdef USING_HybridHash
       } else if (props["dbname"] == "hybridhash"){
       return new ycsb_hybridhash::ycsbHybridHash;
+#endif
+
+#ifdef YCSB_HWDB
+      } else if (props["dbname"] == "hwdb") {
+        std::string dbpath = props.GetProperty("dbpath","/mnt/AEP1/gq/hwdb");
+        return new HWDB(dbpath.c_str(), props);
 #endif
 
   }
