@@ -15,7 +15,8 @@ namespace ycsb_metakv{
         db_option.stat_options.max_wbl_num = 1000;
         db_option.stat_options.counter_policy_max_entry = 1000;
 
-        DBOpen(&db_option,"/mnt/AEP0/metakv", &db);
+
+        DBOpen(&db_option,"/mnt/pmem01/metakv", &db);
     }
 
     void ycsbMetaKV::Close() {
@@ -23,25 +24,12 @@ namespace ycsb_metakv{
     }
 
     int ycsbMetaKV::Insert(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        // 完全不管table
-        const std::string& whole_key(key);
-        std::string whole_value;
-
-        if (values.size() != 1) {
-            printf("Insert error: values size should be exactly 1");
-            exit(0);
-        }
-
-        uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
-        std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
+        uint64_t pinode = *(uint64_t *)(key.data());
         Slice fname;
-//        Slice fstat;
-        SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
-        uint64_t inode = std::stoull(values.at(0).first);
+        SliceInit(&fname, 17, const_cast<char *>(key.data() + sizeof(uint64_t)));
+
+        uint64_t inode = *(uint64_t *)(values.at(0).first.data());
         std::string stat_str = values.at(0).second;
-//        SliceInit(&fstat, stat_str.size(), stat_str.data());
-//        printf("INSERT: pinode: %lu, fname: %s, inode: %lu\n", pinode, tmp_fname.c_str(), inode);
-//        fflush(stdout);
 
         if (MetaKVPut(&db, pinode, &fname, inode, (struct stat *)stat_str.data()) != OK) {
             return DB::kErrorNoData;
@@ -52,33 +40,25 @@ namespace ycsb_metakv{
 
     int ycsbMetaKV::Read(const std::string &table, const std::string &key, const std::vector<std::string> *fields,
                          std::vector<KVPair> &result) {
-        const std::string& whole_key(key);
-        std::string whole_value;
-
-        uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
-        std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
+        uint64_t pinode = *(uint64_t *)(key.data());
         Slice fname;
-        SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
+        SliceInit(&fname, 17, const_cast<char *>(key.data() + sizeof(uint64_t)));
         uint64_t inode = 0;
         Slice stat_slice;
 
-        printf("GET: pinode: %lu, fname: %s\n", pinode, tmp_fname.c_str());
-        fflush(stdout);
 
         if (MetaKVGet(&db, pinode, &fname, &inode, &stat_slice) != OK) {
             return DB::kErrorNoData;
         }
+        free(stat_slice.data);
         return DB::kOK;
     }
 
     int ycsbMetaKV::Delete(const std::string &table, const std::string &key) {
-        const std::string& whole_key(key);
-        std::string whole_value;
-
-        uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
-        std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
+        uint64_t pinode = *(uint64_t *)(key.data());
         Slice fname;
-        SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
+        SliceInit(&fname, 17, const_cast<char *>(key.data() + sizeof(uint64_t)));
+
         if (MetaKVDelete(&db, pinode, &fname) != 0) {
             return DB::kErrorNoData;
         }
@@ -87,22 +67,21 @@ namespace ycsb_metakv{
 
     int ycsbMetaKV::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
         // for workload a/b/c/d/e/f should use insert instead of delete
-        return Insert(table, key, values);
+//        return Insert(table, key, values);
+        return Delete(table, key);
     }
 
     int ycsbMetaKV::Scan(const std::string &table, const std::string &key, int record_count,
                          const std::vector<std::string> *fields, std::vector<std::vector<KVPair>> &result) {
-        const std::string& whole_key(key);
-        std::string whole_value;
-
-        uint64_t pinode = std::stoull(whole_key.substr(0, whole_key.find('-')));
-        std::string tmp_fname = whole_key.substr(whole_key.find('-')+1,  whole_key.size()-1);
+        uint64_t pinode = *(uint64_t *)(key.data());
         Slice fname;
-        SliceInit(&fname, tmp_fname.size() + 1, tmp_fname.data());
+        SliceInit(&fname, 17, const_cast<char *>(key.data() + sizeof(uint64_t)));
+
         char * r = nullptr;
         if (MetaKVScan(&db, pinode, &r) != 0 || r == nullptr) {
             return DB::kErrorNoData;
         }
+        free(r);
         return DB::kOK;
     }
 }

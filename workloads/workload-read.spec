@@ -6,13 +6,13 @@
 #   Default data size: 256 B records (8 fields, 32 bytes each, plus key)
 #   Request distribution: uniform
 
-recordcount=160000000
-operationcount=32000000
+recordcount=100000000
+operationcount=10000000
 #recordcount=1600000
 #operationcount=320000
 
-fieldcount=8
-fieldlength=16
+fieldcount=1
+fieldlength=144
 #fieldcount=1
 #fieldlength=8
 

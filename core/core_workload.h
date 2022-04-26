@@ -215,18 +215,36 @@ inline std::string CoreWorkload::NextTransactionKey() {
 }
 
 inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
-  if (!ordered_inserts_) {
-    key_num = utils::Hash(key_num);
-  }
+    // key就是pinode，或者说是一个从0开始递增的数字
 
-  auto pos = key_num / file_ratio;
-  std::string pinode(reinterpret_cast<const char*>(&pos), sizeof(pos));
-  std::string fname;
-  fname = std::string(16-fname.size(),'0') + fname;
-  //return std::string("user").append(zeros, '0').append(key_num_str);
-  //  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
-  // remove user prefix
-  return pinode+fname;
+//  if (!ordered_inserts_) {
+//    key_num = utils::Hash(key_num);
+//  }
+//
+//  auto pos = key_num / file_ratio;
+//  std::string pinode(reinterpret_cast<const char*>(&pos), sizeof(pos));
+//  std::string fname = std::to_string(key_num);
+//  fname = std::string(16-fname.size(),'0') + fname;
+//  //return std::string("user").append(zeros, '0').append(key_num_str);
+//  //  return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
+//  // remove user prefix
+//  return pinode+fname;
+    if (!ordered_inserts_) {
+        key_num = utils::Hash(key_num);
+    }
+
+    // pinode
+    uint64_t pinode = (key_num+1) % prefix_num;
+    std::string pinode_string(reinterpret_cast<const char*>(&pinode), sizeof(pinode));
+    char buf[32];
+    snprintf(buf, 32, "%016lu", key_num % 10000000000000000ul);
+    pinode_string.append(buf);
+    // 不知道pinode在转换的时候会不会
+    uint64_t tmp = *(uint64_t *)(pinode_string.data());
+    std::string fname = pinode_string.substr(sizeof(uint64_t), pinode_string.size());
+//    printf("[Insert] pinode = %lu, fname = %s key_num = %lu\n", tmp, fname.data(), key_num);
+
+    return pinode_string;
 }
 
 inline std::string CoreWorkload::NextFieldName() {

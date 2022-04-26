@@ -25,8 +25,8 @@ option(WITH_UTREE "support for uTree" OFF)
 option(WITH_FASTFAIR "support for FASTFAIR" OFF)
 option(WITH_VIPER "support for Viper" OFF)
 option(WITH_HIKV "support for HiKV" OFF)
-option(WITH_METAKV "support for MetaKV" OFF)
-option(WITH_HWDB "support for HWDB" ON)
+option(WITH_METAKV "support for MetaKV" ON)
+option(WITH_HWDB "support for HWDB" OFF)
 
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
@@ -93,7 +93,7 @@ if (WITH_PMEM_ROCKSDB)
             "db/pmem_rocksdb_db.cc"
             "db/pmem_rocksdb_db.h"
             )
-    target_link_libraries(ycsb rocksdb)
+    target_link_libraries(ycsb rocksdb snappy pmem)
 endif ()
 
 if (WITH_CCEH)

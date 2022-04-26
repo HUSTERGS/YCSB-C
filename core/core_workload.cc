@@ -68,7 +68,9 @@ const string CoreWorkload::SCAN_LENGTH_DISTRIBUTION_PROPERTY =
 const string CoreWorkload::SCAN_LENGTH_DISTRIBUTION_DEFAULT = "uniform";
 
 const string CoreWorkload::INSERT_ORDER_PROPERTY = "insertorder";
-const string CoreWorkload::INSERT_ORDER_DEFAULT = "1";
+
+// 是否是顺序负载，0不是，1是
+const string CoreWorkload::INSERT_ORDER_DEFAULT = "0";
 
 const string CoreWorkload::INSERT_START_PROPERTY = "insertstart";
 const string CoreWorkload::INSERT_START_DEFAULT = "0";
@@ -197,7 +199,7 @@ void CoreWorkload::BuildValues(std::vector<ycsbc::DB::KVPair> &values) {
 //    pair.first.append("field").append(std::to_string(i));
     uint64_t inode = inode_generator_->Next();
     // inode to string，不转成string，提高速度
-    pair.first.append(std::to_string(inode));
+    pair.first.append(std::string{reinterpret_cast<const char*>(&inode), sizeof(inode)});
 //    pair.first.append(std::string{reinterpret_cast<const char *>(&inode), sizeof(inode)}); // inode
     // 这个地方感觉会有性能瓶颈
 //    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar()); // stat

@@ -1,6 +1,6 @@
 # insert only
-recordcount=1600000
-operationcount=320000
+recordcount=100000000
+operationcount=10000000
 #recordcount=1600000
 #operationcount=320000
 
