@@ -7,6 +7,8 @@ pkg_check_modules(TBB REQUIRED tbb)
 
 add_subdirectory(redis)
 
+#add_definitions(-DGENERATE_PREFIX_KEY)
+
 add_executable(ycsb "")
 target_sources(ycsb PUBLIC
         "core/client.h"

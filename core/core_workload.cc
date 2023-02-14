@@ -166,9 +166,10 @@ void CoreWorkload::Init(const utils::Properties &p) {
     throw utils::Exception("Distribution not allowed for scan length: " +
         scan_len_dist);
   }
-
+#ifdef GENERATE_PREFIX_KEY
   file_ratio = std::stoi(p.GetProperty("file_ratio", "12"));
   prefix_num = record_count_ / file_ratio;
+#endif
 }
 
 ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(

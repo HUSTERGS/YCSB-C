@@ -215,7 +215,7 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
-
+#ifdef GENERATE_PREFIX_KEY
   int pos = key_num % prefix_num;
   /*for ( ; ; pos = (pos + 1) % prefix_num) {
       if (prefix_count[pos] > 0) {
@@ -226,12 +226,16 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   std::string prefix_str = std::to_string(pos);
   int prefix_zero = zero_padding_ - prefix_str.length();
   prefix_zero = std::max(0, prefix_zero);
+#endif
 
   std::string key_num_str = std::to_string(key_num);
   int zeros = zero_padding_ - key_num_str.length();
   zeros = std::max(0, zeros);
-  //return std::string("user").append(zeros, '0').append(key_num_str);
+#ifdef GENERATE_PREFIX_KEY
   return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
+#else
+    return std::string("user").append(zeros, '0').append(key_num_str);
+#endif
 }
 
 inline std::string CoreWorkload::NextFieldName() {
