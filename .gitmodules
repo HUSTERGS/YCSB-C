@@ -1,0 +1,5 @@
+[submodule "lib/wiredtiger"]
+	path = lib/wiredtiger
+    url = git@github.com:wiredtiger/wiredtiger.git
+    branch = mongodb-6.3
+

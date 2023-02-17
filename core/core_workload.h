@@ -229,17 +229,20 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
 #endif
 
   std::string key_num_str = std::to_string(key_num);
+  if (key_num_str.size() >= zero_padding_) {
+      return key_num_str.substr(0, zero_padding_);
+  }
   int zeros = zero_padding_ - key_num_str.length();
   zeros = std::max(0, zeros);
 #ifdef GENERATE_PREFIX_KEY
   return std::string("user").append(prefix_zero, '0').append(prefix_str).append("-").append(zeros, '0').append(key_num_str);
 #else
-    return std::string("user").append(zeros, '0').append(key_num_str);
+    return std::string(zeros, '0').append(key_num_str);
 #endif
 }
 
 inline std::string CoreWorkload::NextFieldName() {
-  return std::string("field").append(std::to_string(field_chooser_->Next()));
+  return std::to_string(field_chooser_->Next());
 }
   
 } // ycsbc
