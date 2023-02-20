@@ -28,7 +28,7 @@ std::atomic<uint64_t> total_finished;
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading, shared_ptr<Histogram> hist) {
-//  db->Init();
+  db->Init();
   ycsbc::Client client(*db, *wl);
   int oks = 0;
   int count = 0;
@@ -47,7 +47,7 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     }
     ++count;
   }
-//  db->Close();
+  db->Close();
   return oks;
 }
 
@@ -60,7 +60,7 @@ int main(const int argc, const char *argv[]) {
     cout << "Unknown database name " << props["dbname"] << endl;
     exit(0);
   }
-    db->Init();
+
   ycsbc::CoreWorkload wl;
   wl.Init(props);
 
@@ -125,7 +125,7 @@ int main(const int argc, const char *argv[]) {
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
   cerr << total_ops * 1.0 / sec / 1000 << endl;
   cerr << hists[0]->ToString() << endl;
-  db->Close();
+  delete db;// conn的销毁放在析构函数里
 }
 
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
