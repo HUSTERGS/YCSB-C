@@ -1,4 +1,5 @@
 #include "wiredtiger_db.h"
+#include <cassert>
 
 namespace ycsbc {
     // 共用一个connection，但是每个线程使用单独的session以及cursor
@@ -63,33 +64,31 @@ namespace ycsbc {
     void WiredTigerDB::Close() {
         if (cursor) {
             cursor->close(cursor);
+            cursor = nullptr;
         }
         if (session) {
             session->close(session, nullptr);
+            session = nullptr;
         }
     }
 
     int WiredTigerDB::Insert(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        session->open_cursor(session, "table:test", nullptr, nullptr, &cursor);
         assert(get_whole_value(values).length() == 8);
         assert(key.length() == 8);
         cursor->set_key(cursor, key.c_str());
         cursor->set_value(cursor, get_whole_value(values).c_str());
         int ret = cursor->insert(cursor);
-        cursor->close(cursor);
         return ret;
     }
 
     int WiredTigerDB::Delete(const std::string &table, const std::string &key) {
         cursor->set_key(cursor, key.c_str());
         int ret = cursor->remove(cursor);
-        cursor->close(cursor);
         return ret;
     }
 
     int WiredTigerDB::Read(const std::string &table, const std::string &key, const std::vector <std::string> *fields,
                            std::vector <KVPair> &result) {
-        session->open_cursor(session, "table:test", nullptr, nullptr, &cursor);
         cursor->set_key(cursor, key.c_str());
         cursor->search(cursor);
         const char *value = nullptr;
@@ -99,8 +98,6 @@ namespace ycsbc {
             return DB::kErrorNoData;
         }
         result.emplace_back("", value);
-
-        cursor->close(cursor);
         return DB::kOK;
     }
 
@@ -112,11 +109,9 @@ namespace ycsbc {
     }
 
     int WiredTigerDB::Update(const std::string &table, const std::string &key, std::vector<KVPair> &values) {
-        session->open_cursor(session, "table:test", nullptr, nullptr, &cursor);
         cursor->set_key(cursor, key.c_str());
         cursor->set_value(cursor, get_whole_value(values).c_str());
         int ret = cursor->update(cursor);
-        cursor->close(cursor);
         return ret;
     }
 
