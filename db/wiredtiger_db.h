@@ -15,7 +15,7 @@ namespace ycsbc {
           WT_SESSION * s;
           conn->open_session(conn, nullptr, nullptr, &s);
           // 创建表
-          s->create(s, "table:test", "key_format=S,value_format=S");
+          s->create(s, "table:test", session_create_config.str().c_str());
           s->close(s, nullptr);
       }
 
@@ -44,16 +44,18 @@ namespace ycsbc {
       // Number of bytes to use as a cache of uncompressed data.
       // Negative means use default settings.
       // rocksdb的write_buffer_size为64m
-      constexpr static auto FLAGS_cache_size = (64 * 1024 * 1024);
+
+//      constexpr static auto FLAGS_cache_size = (64 * 1024 * 1024);
+      constexpr static auto FLAGS_cache_size = (3ull * 1024 * 1024 * 1024);
 
       // Use log and checkpoint
       // 0: close
       // 1: open (async)
       // 2: open (sync)
-      constexpr static auto FLAGS_use_log = 1;
+      constexpr static auto FLAGS_use_log = 0;
 
-      constexpr static auto FLAGS_internal_page_max = (char *)"4kb";
-      constexpr static auto FLAGS_leaf_page_max = (char *)"4kb";
+      constexpr static auto FLAGS_internal_page_max = (char *)"16kb";
+      constexpr static auto FLAGS_leaf_page_max = (char *)"16kb";
 
       void init_config();
       static std::string get_whole_value(std::vector<KVPair> &values);
